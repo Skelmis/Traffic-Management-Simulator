@@ -233,12 +233,11 @@ def timer():
 
 def lightSignals():
     while True:
+        # Base layer fallback code
         northController.allCycle()
-        southController.allCycle()
         eastController.allCycle()
+        southController.allCycle()
         westController.allCycle()
-        pass
-        # Your signal design goes here
 
 
 """ A function which allows us to start the simulation. """
