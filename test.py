@@ -223,7 +223,7 @@ class TestSimulation(unittest.TestCase):
     # Test str function
     def test_carStr(self):
         car = Car("Car1", "WEST", "STRAIGHT")
-        self.assertEqual(str(car), "Car1: ^")
+        self.assertEqual(str(car), "Car1: STRAIGHT")
 
     ### Traffic Light Tests ###
     # Test the attributes are set correctly
