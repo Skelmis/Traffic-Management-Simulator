@@ -4,10 +4,12 @@ from lights import Traffic as trafficLight
 import time
 
 """ A class which stores the logic of the controller that you are going to implement """
+
+
 class Controller:
 
-    #The name of the controller, associated with the road and traffic direction, can be either NORTH, EAST, SOUTH or WEST
-    #The time delay between light switching
+    # The name of the controller, associated with the road and traffic direction, can be either NORTH, EAST, SOUTH or WEST
+    # The time delay between light switching
     INTERVAL = 3
 
     def __init__(self, name):
@@ -20,20 +22,27 @@ class Controller:
     def getTL(self):
         return self.trafficLight
 
-    #An example of defining a traffic light phase as a function
+    # An example of defining a traffic light phase as a function
     def phaseStop(self):
         self.trafficLight.switchOff()
         self.trafficLight.redOn()
         self.trafficLight.tredOn()
 
-    #Define further phases for your traffic light here
+    # Define further phases for your traffic light here
 
-    #An example of defining a traffic light cycle as a function
+    # An example of defining a traffic light cycle as a function
     def allCycle(self):
-        #All green lights on
-        #Pause the light before the change for the length of the interval
+        # All green lights on
+        self.trafficLight.switchOff()
+        self.trafficLight.greenOn()
+        self.trafficLight.tgreenOn()
+        # Pause the light before the change for the length of the interval
         time.sleep(self.INTERVAL)
-        #All orange lights on
+        # All orange lights on
+        self.trafficLight.switchOff()
+        self.trafficLight.orangeOn()
+        self.trafficLight.torangeOn()
         time.sleep(self.INTERVAL)
-        #All red lights on
+        # All red lights on
         self.phaseStop()
+        # time.sleep(self.INTERVAL)
