@@ -25,6 +25,29 @@ class TestSimulation(unittest.TestCase):
         self.assertTrue(controller.getTL() != None)
 
     # Add further tests for your controller class here
+    def test_rightWait(self):
+        """
+        Tests our wait functions
+        """
+        controller = TrafficLightController("WEST")
+        self.assertEqual(controller.GetRightWait(), 0)
+        controller.IncrementRightWait()
+        controller.IncrementRightWait()
+        self.assertEqual(controller.GetRightWait(), 2)
+        controller.ResetRightWait()
+        self.assertEqual(controller.GetRightWait(), 0)
+
+    def test_otherWait(self):
+        """
+        Tests our wait functions
+        """
+        controller = TrafficLightController("WEST")
+        self.assertEqual(controller.GetOtherWait(), 0)
+        controller.IncrementOtherWait()
+        controller.IncrementOtherWait()
+        self.assertEqual(controller.GetOtherWait(), 2)
+        controller.ResetOtherWait()
+        self.assertEqual(controller.GetOtherWait(), 0)
 
     ### Simulator class tests ###
 

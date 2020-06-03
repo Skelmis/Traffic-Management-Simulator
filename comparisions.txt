@@ -1,0 +1,15 @@
+When comparing our code for concept 1 & 3
+Concept 1 being lights just rotate through clockwise
+Concept 3 being based on lane length & wait times
+
+I found that using a set ResetCars functions (I.E. generated 25 new cars every time)
+Concept 1 had a total cars count of: 210 after 5 minutes
+Concept 3 had a total cars count of: 285 after 5 minutes
+This means Concept 3 had 75 more cars then Concept 1 are running for the same timeframe
+This means Concept 3 is 135% more efficient then Concept 1
+
+After about 15 minutes:
+https://gyazo.com/af5abcb2338290c1ebf09df2abf8c740
+
+After around 1:45 hours:
+https://gyazo.com/21855562393c21bbb78a01017d38b1c6

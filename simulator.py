@@ -121,6 +121,7 @@ def displayControllers():
         print(controllerDisplay())
         displayCars()
         timer()
+        PrintMax()
         time.sleep(1)
         # break # Only want one iterationn lol
 
@@ -130,13 +131,13 @@ def displayControllers():
 
 def displayCars():
     print("NORTH:", end="")
-    pprint(northLane)  # pprint prints lists n shit nicely
+    print(northLane)  # pprint prints lists n shit nicely
     print("EAST:", end="")
-    pprint(eastLane)
+    print(eastLane)
     print("SOUTH:", end="")
-    pprint(southLane)
+    print(southLane)
     print("WEST:", end="")
-    pprint(westLane)
+    print(westLane)
 
 
 """ A function to remove cars from a lane based on their intended direction. """
@@ -193,7 +194,11 @@ def resetCars():
             and len(eastLane) == 0
             and len(westLane) == 0
         ):
-            generateCars(random.randint(10, 100))
+            # generateCars(random.randint(10, 100))
+
+            # Use 50 as our set testcase for comparsions
+            # to our baseline
+            generateCars(50)
 
 
 """ A function which counts the number of cars going a certain direction in the given lane. """
@@ -207,37 +212,364 @@ def countCars(lane, direction):
     return count
 
 
+def CountAllCars(lane):
+    """
+    Counts all the cars in the lane onto two sides so we can get numbers
+
+    Returns:
+     - right, other (int, int) : The count of cars going right or other way
+    """
+    right = 0
+    other = 0
+    for car in lane:
+        if car.getDirection() == "RIGHT":
+            right += 1
+        else:
+            other += 1
+
+    return right, other
+
+
 """ A function which displays the time elapsed and number of generated cars to the user. """
 
 
 def timer():
+    """
+    Displays the current runtime and also how many cars have
+    been generated for the user so far.
+    """
     current_time = time.perf_counter()
     time_elapsed = current_time - start
-    hours = int(time_elapsed // 360)
-    time_elapsed %= 360
-    minutes = int(time_elapsed // 60)
-    time_elapsed %= 60
-    seconds = int(time_elapsed)
+    minutes, seconds = divmod(time_elapsed, 60)
+    hours, minutes = divmod(minutes, 60)
+    seconds = int(seconds)
+    minutes = int(minutes)
+    hours = int(hours)
     print("----------")
     print(
         "TIME ELAPSED: {:0>2d}:{:0>2d}:{:0>2d}".format(hours, minutes, seconds),
         "| Total cars:",
         all_cars,
     )
-    if int(time_elapsed) == 60:
-        sys.exit()
+    # Removed the kickout function to test higher limits
+    # agaisnt our baseline test simulator
 
 
 """ A function which determines which lightSignals to set off and when. """
 
 
+def ResetAllWaits():
+    """
+    Resets the wait times for all controllers
+    """
+    northController.ResetRightWait()
+    northController.ResetOtherWait()
+
+    eastController.ResetRightWait()
+    eastController.ResetRightWait()
+
+    southController.ResetRightWait()
+    southController.ResetOtherWait()
+
+    westController.ResetRightWait()
+    westController.ResetOtherWait()
+
+
+def IncrementAllWaits():
+    """
+    Increments all waits by 1
+    """
+    northController.IncrementRightWait()
+    northController.IncrementOtherWait()
+
+    eastController.IncrementRightWait()
+    eastController.IncrementOtherWait()
+
+    southController.IncrementRightWait()
+    southController.IncrementOtherWait()
+
+    westController.IncrementRightWait()
+    westController.IncrementOtherWait()
+
+
+def RunDualOtherControllers(controllerOne, controllerTwo):
+    """
+    Used to shorten up the code needed within lightSignals()
+    by simply running the code here with the required things
+    Runs the STRAIGHT & LEFT lights
+
+    Params:
+     - controllerOne, controllerTwo (controller) : The controllers needed
+    """
+    threadOne = threading.Thread(target=controllerOne.OtherCycle)
+    threadTwo = threading.Thread(target=controllerTwo.OtherCycle)
+    threadOne.start()
+    threadTwo.start()
+    threadOne.join()
+    threadTwo.join()
+    controllerOne.ResetOtherWait()
+    controllerTwo.ResetOtherWait()
+
+
+def RunDualRightControllers(controllerOne, controllerTwo):
+    """
+    Used to shorten up the code needed within lightSignals()
+    by simply running the code here with the required things
+    Runs the RIGHT lights
+
+    Params:
+     - controllerOne, controllerTwo (controller) : The controllers needed
+    """
+    threadOne = threading.Thread(target=controllerOne.RightCycle)
+    threadTwo = threading.Thread(target=controllerTwo.RightCycle)
+    threadOne.start()
+    threadTwo.start()
+    threadOne.join()
+    threadTwo.join()
+    controllerOne.ResetRightWait()
+    controllerTwo.ResetRightWait()
+
+
+def PrintMax():
+    northRight, northOther = CountAllCars(northLane)
+    eastRight, eastOther = CountAllCars(eastLane)
+    southRight, southOther = CountAllCars(southLane)
+    westRight, westOther = CountAllCars(westLane)
+    data = {
+        northRight: "nr",
+        northOther: "no",
+        eastRight: "er",
+        eastOther: "eo",
+        southRight: "sr",
+        southOther: "so",
+        westRight: "wr",
+        westOther: "wo",
+    }
+    longestLight = max(data)
+    print(data[longestLight])
+
+
 def lightSignals():
+    # thread = threading.Thread(target=PrintMax)
+    # thread.start()
     while True:
-        # Base layer fallback code
-        northController.allCycle()
-        eastController.allCycle()
-        southController.allCycle()
-        westController.allCycle()
+        # We need to know how many cars need what light per side
+        # The other is LEFT & STRAIGHT going cars
+        northRight, northOther = CountAllCars(northLane)
+        eastRight, eastOther = CountAllCars(eastLane)
+        southRight, southOther = CountAllCars(southLane)
+        westRight, westOther = CountAllCars(westLane)
+
+        # TODO
+        # Implement a way to get the largest out of the 8 above then run the rule
+        # set to figure out what one to use
+        # WE need to know the lane so we use a dict
+        # Dunno how it handles double ups
+        data = {
+            northRight: "nr",
+            northOther: "no",
+            eastRight: "er",
+            eastOther: "eo",
+            southRight: "sr",
+            southOther: "so",
+            westRight: "wr",
+            westOther: "wo",
+        }
+        longestLight = max(data)
+
+        """
+        The first 8 if statements purely work based off of if the
+        maximum wait time is exceeded. Each loop here is counted as 1 time
+        so if you have to wait 8 times then you get priority next loop
+        given we have 8 sets of lights I feel this is only fair
+        """
+        if northController.GetOtherWait() > 7 and northOther != 0:
+            # works as intended
+            # Means the left & straight cars need to go
+            if northRight < southOther:
+                # south other should go
+                print("North Other Wait exceeded, running north & south")
+                RunDualOtherControllers(northController, southController)
+            else:
+                # All north should go
+                print("North other wait exceeded, running all north")
+                northController.AllCycle()
+                northController.ResetBothWaits()
+        elif eastController.GetOtherWait() > 7 and eastOther != 0:
+            # means the east left & straight cars need to go
+            if eastRight < westOther:
+                # west other should go
+                print("east Other Wait exceeded, running east & west")
+                RunDualOtherControllers(eastController, westController)
+            else:
+                # All east should go
+                print("east other wait exceeded, running all east")
+                eastController.AllCycle()
+                eastController.ResetBothWaits()
+        elif southController.GetOtherWait() > 7 and southOther != 0:
+            # Means the south left & straight cars need to go
+            if southRight < northOther:
+                # north other should go
+                print("south Other Wait exceeded, running south & north")
+                RunDualOtherControllers(southController, northController)
+            else:
+                # All south should go
+                print("south other wait exceeded, running all south")
+                southController.AllCycle()
+                southController.ResetBothWaits()
+        elif westController.GetOtherWait() > 7 and westOther != 0:
+            # means the west left & straight cars need to ggit commito
+            if westRight < eastOther:
+                # east other should go
+                print("west Other Wait exceeded, running west & east")
+                RunDualOtherControllers(westController, eastController)
+            else:
+                # All west should go
+                print("west other wait exceeded, running all west")
+                westController.AllCycle()
+                westController.ResetBothWaits()
+        elif northController.GetRightWait() > 7 and northRight != 0:
+            # Means the north right Need to go
+            if northOther < southRight:
+                # south right should go
+                print("North right Wait exceeded, running north & south")
+                RunDualRightControllers(northController, southController)
+            else:
+                # All north should go
+                print("North right wait exceeded, running all north")
+                northController.AllCycle()
+                northController.ResetBothWaits()
+        elif eastController.GetRightWait() > 7 and eastRight != 0:
+            if eastOther < westRight:
+                # west right should go
+                print("east right Wait exceeded, running east & west")
+                RunDualRightControllers(eastController, westController)
+            else:
+                # All east should go
+                print("east right wait exceeded, running all east")
+                eastController.AllCycle()
+                eastController.ResetBothWaits()
+        elif southController.GetRightWait() > 7 and southRight != 0:
+            if southOther < northRight:
+                # north right should go
+                print("south right Wait exceeded, running south & north")
+                RunDualRightControllers(southController, northController)
+            else:
+                # All south should go
+                print("south right wait exceeded, running all south")
+                southController.AllCycle()
+                southController.ResetBothWaits()
+        elif westController.GetRightWait() > 7 and westRight != 0:
+            if westOther < eastRight:
+                # west other should go
+                print("west right Wait exceeded, running west & east")
+                RunDualRightControllers(westController, eastController)
+            else:
+                # All east should go
+                print("west right wait exceeded, running all west")
+                westController.AllCycle()
+                westController.ResetBothWaits()
+        # The next 8 are our actual logic steps which pick the lane to run with
+        elif data[longestLight] == "no":
+            # North other is longest lane
+            if northRight < southOther:
+                print("Dual north & south other")
+                # south other should go
+                RunDualOtherControllers(northController, southController)
+            else:
+                # All north should go
+                print("All north")
+                northController.AllCycle()
+                northController.ResetBothWaits()
+        elif data[longestLight] == "eo":
+            # East other is longest lane
+            if eastRight < westOther:
+                # west other should go
+                print("Both east & west other")
+                RunDualOtherControllers(eastController, westController)
+            else:
+                # All east should go
+                print("All east")
+                eastController.AllCycle()
+                eastController.ResetBothWaits()
+        elif data[longestLight] == "so":
+            # South other is longest lane
+            if southRight < northOther:
+                # north other should go
+                print("Dual south & north other")
+                RunDualOtherControllers(southController, northController)
+            else:
+                # All south should go
+                print("All south")
+                southController.AllCycle()
+                southController.ResetBothWaits()
+        elif data[longestLight] == "wo":
+            # West other is longest lane
+            if westRight < eastOther:
+                # east other should go
+                print("Both west & east other")
+                RunDualOtherControllers(westController, eastController)
+            else:
+                # All west should go
+                print("All west")
+                westController.AllCycle()
+                westController.ResetBothWaits()
+        elif data[longestLight] == "nr":
+            # North right is longest lane
+            if northOther < southRight:
+                # south right should go
+                print("Both north & south right")
+                RunDualRightControllers(northController, southController)
+            else:
+                # All north should go
+                print("All north")
+                northController.AllCycle()
+                northController.ResetBothWaits()
+        elif data[longestLight] == "er":
+            # East right is longest lane
+            if eastOther < westRight:
+                # west other should go
+                print("Both east & west right")
+                RunDualRightControllers(eastController, westController)
+            else:
+                # All east should go
+                print("All east")
+                eastController.AllCycle()
+                eastController.ResetBothWaits()
+        elif data[longestLight] == "sr":
+            # South right is longest lane
+            if southOther < northRight:
+                # north right should go
+                print("Both south & north right")
+                RunDualRightControllers(southController, northController)
+            else:
+                # All south should go
+                print("All south")
+                southController.AllCycle()
+                southController.ResetBothWaits()
+        elif data[longestLight] == "wr":
+            # West right is longest lane
+            if westOther < eastRight:
+                # west other should go
+                print("Both west & east right")
+                RunDualRightControllers(westController, eastController)
+            else:
+                # All west should go
+                print("All west")
+                westController.AllCycle()
+                westController.ResetBothWaits()
+        else:
+            # If our logic cannot figure out what light
+            # we need to do, just cycle through all of them
+            print("All cycle")
+            northController.AllCycle()
+            eastController.AllCycle()
+            southController.AllCycle()
+            westController.AllCycle()
+            ResetAllWaits()
+
+        IncrementAllWaits()
+        # time.sleep(5)
 
 
 """ A function which allows us to start the simulation. """

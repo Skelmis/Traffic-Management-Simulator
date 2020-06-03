@@ -1,0 +1,27 @@
+https://gyazo.com/95fb708270f72ac8bc38e6bb119e557d
+
+Edge Cases:
+https://gyazo.com/7c791e71bd18b2dca28f1bf88dfa8a63
+
+Unordered runs:
+https://gyazo.com/2d41db705677f7f2afe06f682716335c
+https://gyazo.com/bd0c65f2ad045bc0538703859621a33b
+https://gyazo.com/9724e84642abdf4854589f5c9da267e7
+https://gyazo.com/a26aa66d314c29dfa86bf1b002556cbb
+https://gyazo.com/68cc13bfe938937bc02d0da9b7d8ecd7
+https://gyazo.com/e27ef121478c8bc34240cd2a66d1cb07
+https://gyazo.com/5530be9185b444739d050dc54d484507
+https://gyazo.com/839e08c27740bf1db0c642aa8575641e
+https://gyazo.com/2e5c9756857b268f83e597d3ec75b986
+https://gyazo.com/86083a8a7cdef48c2863894da9fa9190
+
+Ordered run:
+https://gyazo.com/a0541ebfc0faa43b65bf47f0c7d96366
+https://gyazo.com/9bee41e7e9dead70a7412d4c5e1398c4
+https://gyazo.com/33b0efc5868d918979c74f792e53bbe0
+https://gyazo.com/998b294f0254ed05d4cd09f003748ed2
+https://gyazo.com/e69a56aa75e1bb433be5f43316f8e650
+https://gyazo.com/bbac4c18f33eb57153420ae4a1cd633c
+https://gyazo.com/9ca26ca257d3c29dc8d4b275f76ba5da
+https://gyazo.com/c600dd09216b9b60070298adebda47d6
+https://gyazo.com/859b8d14c0d0cc746d870d284511d27e
