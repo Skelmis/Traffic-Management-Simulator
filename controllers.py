@@ -130,3 +130,29 @@ class Controller:
         time.sleep(self.INTERVAL)
         # All red lights on
         self.phaseStop()
+
+    def BrokenCycle(self):
+        """
+        This cycle is used to represent the lights
+        when an error occurs, so essentially this will just blink
+        the orange on and off for x time
+        """
+        self.trafficLight.switchOff()
+        time.sleep(int(self.INTERVAL / 3))
+        self.trafficLight.switchOff()
+        self.trafficLight.orangeOn()
+        self.trafficLight.torangeOn()
+        time.sleep(int(self.INTERVAL / 3))
+        self.trafficLight.switchOff()
+        time.sleep(int(self.INTERVAL / 3))
+        self.trafficLight.switchOff()
+        self.trafficLight.orangeOn()
+        self.trafficLight.torangeOn()
+        time.sleep(int(self.INTERVAL / 3))
+        self.trafficLight.switchOff()
+        time.sleep(int(self.INTERVAL / 3))
+        self.trafficLight.switchOff()
+        self.trafficLight.orangeOn()
+        self.trafficLight.torangeOn()
+        time.sleep(int(self.INTERVAL / 3))
+        self.phaseStop()

@@ -1,0 +1,367 @@
+
+
+"""
+    A function which displays the traffic lights, cars, and timer to the console window.
+"""
+FUNCTION displayControllers():
+    while True:
+        # os.system('clear') # Doesnt work on windows lol
+        os.system("cls")
+        OUTPUT controllerDisplay()
+        displayCars()
+        timer()
+        # PrintMax()
+        time.sleep(1)
+        # break # Only want one iterationn lol
+ENDFUNCTION
+
+
+
+""" A function which displays the time elapsed AND number of generated cars to the user. """
+FUNCTION timer():
+    """
+    Displays the current runtime and also how many cars have
+    been generated for the user so far.
+    """
+    current_time <- time.perf_counter()
+    time_elapsed <- current_time - start
+    minutes, seconds <- divmod(time_elapsed, 60)
+    hours, minutes <- divmod(minutes, 60)
+    seconds <- int(seconds)
+    minutes <- int(minutes)
+    hours <- int(hours)
+    OUTPUT "----------"
+    OUTPUT
+        "TIME ELAPSED: {:0>2d}:{:0>2d}:{:0>2d}".format(hours, minutes, seconds),
+                                                ENDFOR
+        "= Total cars:",
+        all_cars,
+    )
+    # Removed the kickout function to test higher limits
+    # agaisnt our baseline test simulatOR
+ENDFUNCTION
+
+""" A function which determines which lightSignals to set off AND when. """
+FUNCTION ResetAllWaits():
+    """
+    Resets the wait times for all controllers
+    """
+    northController.ResetRightWait()
+    northController.ResetOtherWait()
+    eastController.ResetRightWait()
+    eastController.ResetRightWait()
+    southController.ResetRightWait()
+    southController.ResetOtherWait()
+    westController.ResetRightWait()
+    westController.ResetOtherWait()
+ENDFUNCTION
+
+FUNCTION IncrementAllWaits():
+    """
+    Increments all waits by 1
+    """
+    northController.IncrementRightWait()
+    northController.IncrementOtherWait()
+    eastController.IncrementRightWait()
+    eastController.IncrementOtherWait()
+    southController.IncrementRightWait()
+    southController.IncrementOtherWait()
+    westController.IncrementRightWait()
+    westController.IncrementOtherWait()
+ENDFUNCTION
+
+FUNCTION RunDualOtherControllers(controllerOne, controllerTwo):
+    """
+    Used to shorten up the code needed within lightSignals()
+    by simply running the code here with the required things
+    Runs the STRAIGHT & LEFT lights
+    Params:
+     - controllerOne, controllerTwo (controller) : The controllers needed
+    """
+    threadOne <- threading.Thread(target=controllerOne.OtherCycle)
+    threadTwo <- threading.Thread(target=controllerTwo.OtherCycle)
+    threadOne.start()
+    threadTwo.start()
+    threadOne.join()
+    threadTwo.join()
+    controllerOne.ResetOtherWait()
+    controllerTwo.ResetOtherWait()
+ENDFUNCTION
+
+FUNCTION RunDualRightControllers(controllerOne, controllerTwo):
+    """
+    Used to shorten up the code needed within lightSignals()
+    by simply running the code here with the required things
+    Runs the RIGHT lights
+    Params:
+     - controllerOne, controllerTwo (controller) : The controllers needed
+    """
+    threadOne <- threading.Thread(target=controllerOne.RightCycle)
+    threadTwo <- threading.Thread(target=controllerTwo.RightCycle)
+    threadOne.start()
+    threadTwo.start()
+    threadOne.join()
+    threadTwo.join()
+    controllerOne.ResetRightWait()
+    controllerTwo.ResetRightWait()
+ENDFUNCTION
+
+FUNCTION PrintMax():
+    """
+    A function built for testing our logic and that
+    our program was correctly choosing the largest lane
+    """
+    northRight, northOther <- CountAllCars(northLane)
+    eastRight, eastOther <- CountAllCars(eastLane)
+    southRight, southOther <- CountAllCars(southLane)
+    westRight, westOther <- CountAllCars(westLane)
+    data <- {
+        northRight: "nr",
+        northOther: "no",
+        eastRight: "er",
+        eastOther: "eo",
+        southRight: "sr",
+        southOther: "so",
+        westRight: "wr",
+        westOther: "wo",
+    }
+    longestLight <- max(data)
+    OUTPUT data[longestLight]
+ENDFUNCTION
+
+FUNCTION lightSignals():
+    # thread <- threading.Thread(target=PrintMax)
+    # thread.start()
+    while True:
+        try:
+            # We need to know how many cars need what light per side
+            # The other is LEFT & STRAIGHT going cars
+            northRight, northOther <- CountAllCars(northLane)
+            eastRight, eastOther <- CountAllCars(eastLane)
+            southRight, southOther <- CountAllCars(southLane)
+            westRight, westOther <- CountAllCars(westLane)
+            # TODO
+            # Implement a way to get the largest out of the 8 above then run the rule
+            # set to figure out what one to use
+            # WE need to know the lane so we use a dict
+            # Dunno how it handles double ups
+            data <- {
+                northRight: "nr",
+                northOther: "no",
+                eastRight: "er",
+                eastOther: "eo",
+                southRight: "sr",
+                southOther: "so",
+                westRight: "wr",
+                westOther: "wo",
+            }
+            longestLight <- max(data)
+            """
+            The first 8 if statements purely work based off of if the
+            maximum wait time is exceeded. Each loop here is counted as 1 time
+            so if you have to wait 8 times then you get priority next loop
+            given we have 8 sets of lights I feel this is only fair
+            """
+            IF northController.GetOtherWait() > 7 AND northOther != 0:
+                # works as intended
+                # Means the left & straight cars need to go
+                IF northRight < southOther:
+                    # south other should go
+                    RunDualOtherControllers(northController, southController)
+                ELSE:
+                    # All north should go
+                    northController.AllCycle()
+                    northController.ResetBothWaits()
+                ENDIF
+            ELSEIF eastController.GetOtherWait() > 7 AND eastOther != 0:
+                # means the east left & straight cars need to go
+                IF eastRight < westOther:
+                    # west other should go
+                    RunDualOtherControllers(eastController, westController)
+                ELSE:
+                    # All east should go
+                    eastController.AllCycle()
+                    eastController.ResetBothWaits()
+                ENDIF
+            ELSEIF southController.GetOtherWait() > 7 AND southOther != 0:
+                # Means the south left & straight cars need to go
+                IF southRight < northOther:
+                    # north other should go
+                    RunDualOtherControllers(southController, northController)
+                ELSE:
+                    # All south should go
+                    southController.AllCycle()
+                    southController.ResetBothWaits()
+                ENDIF
+            ELSEIF westController.GetOtherWait() > 7 AND westOther != 0:
+                # means the west left & straight cars need to ggit commito
+                IF westRight < eastOther:
+                    # east other should go
+                    RunDualOtherControllers(westController, eastController)
+                ELSE:
+                    # All west should go
+                    westController.AllCycle()
+                    westController.ResetBothWaits()
+                ENDIF
+            ELSEIF northController.GetRightWait() > 7 AND northRight != 0:
+                # Means the north right Need to go
+                IF northOther < southRight:
+                    # south right should go
+                    RunDualRightControllers(northController, southController)
+                ELSE:
+                    # All north should go
+                    northController.AllCycle()
+                    northController.ResetBothWaits()
+                ENDIF
+            ELSEIF eastController.GetRightWait() > 7 AND eastRight != 0:
+                IF eastOther < westRight:
+                    # west right should go
+                    RunDualRightControllers(eastController, westController)
+                ELSE:
+                    # All east should go
+                    eastController.AllCycle()
+                    eastController.ResetBothWaits()
+                ENDIF
+            ELSEIF southController.GetRightWait() > 7 AND southRight != 0:
+                IF southOther < northRight:
+                    # north right should go
+                    RunDualRightControllers(southController, northController)
+                ELSE:
+                    # All south should go
+                    southController.AllCycle()
+                    southController.ResetBothWaits()
+                ENDIF
+            ELSEIF westController.GetRightWait() > 7 AND westRight != 0:
+                IF westOther < eastRight:
+                    # west other should go
+                    RunDualRightControllers(westController, eastController)
+                ELSE:
+                    # All east should go
+                    westController.AllCycle()
+                    westController.ResetBothWaits()
+                ENDIF
+            # The next 8 are our actual logic steps which pick the lane to run with
+            ELSEIF data[longestLight] = "no":
+                # North other is longest lane
+                IF northRight < southOther:
+                    # south other should go
+                    RunDualOtherControllers(northController, southController)
+                ELSE:
+                    # All north should go
+                    northController.AllCycle()
+                    northController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "eo":
+                # East other is longest lane
+                IF eastRight < westOther:
+                    # west other should go
+                    RunDualOtherControllers(eastController, westController)
+                ELSE:
+                    # All east should go
+                    eastController.AllCycle()
+                    eastController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "so":
+                # South other is longest lane
+                IF southRight < northOther:
+                    # north other should go
+                    RunDualOtherControllers(southController, northController)
+                ELSE:
+                    # All south should go
+                    southController.AllCycle()
+                    southController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "wo":
+                # West other is longest lane
+                IF westRight < eastOther:
+                    # east other should go
+                    RunDualOtherControllers(westController, eastController)
+                ELSE:
+                    # All west should go
+                    westController.AllCycle()
+                    westController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "nr":
+                # North right is longest lane
+                IF northOther < southRight:
+                    # south right should go
+                    RunDualRightControllers(northController, southController)
+                ELSE:
+                    # All north should go
+                    northController.AllCycle()
+                    northController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "er":
+                # East right is longest lane
+                IF eastOther < westRight:
+                    # west other should go
+                    RunDualRightControllers(eastController, westController)
+                ELSE:
+                    # All east should go
+                    eastController.AllCycle()
+                    eastController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "sr":
+                # South right is longest lane
+                IF southOther < northRight:
+                    # north right should go
+                    RunDualRightControllers(southController, northController)
+                ELSE:
+                    # All south should go
+                    southController.AllCycle()
+                    southController.ResetBothWaits()
+                ENDIF
+            ELSEIF data[longestLight] = "wr":
+                # West right is longest lane
+                IF westOther < eastRight:
+                    # west other should go
+                    RunDualRightControllers(westController, eastController)
+                ELSE:
+                    # All west should go
+                    westController.AllCycle()
+                    westController.ResetBothWaits()
+                ENDIF
+            ELSE:
+                # If our logic cannot figure out what light
+                # we need to do, just cycle through all of them
+                OUTPUT "All cycle"
+                northController.AllCycle()
+                time.sleep(1)
+                eastController.AllCycle()
+                time.sleep(1)
+                southController.AllCycle()
+                time.sleep(1)
+                westController.AllCycle()
+                ResetAllWaits()
+            ENDIF
+            IncrementAllWaits()
+        except Exception as e:
+            """
+            This should never trip, but if it 'does' break we need to be
+            able to handle that in a manner which is safe to drivers, so we
+            will cycle every light to orange for 1 time 'interval'.
+            Refer to the comment in the car removal area for how
+            lightsAreBroken works cool thankies :)
+            """
+            global lightsAreBroken
+            lightsAreBroken <- True
+            north <- threading.Thread(target=northController.BrokenCycle)
+            east <- threading.Thread(target=eastController.BrokenCycle)
+            south <- threading.Thread(target=southController.BrokenCycle)
+            west <- threading.Thread(target=westController.BrokenCycle)
+            north.start()
+            east.start()
+            south.start()
+            west.start()
+            north.join()
+            east.join()
+            south.join()
+            west.join()
+            lightsAreBroken <- False
+        finally:
+            # In accordance with the road rules we sleep here
+            # so there is an 'all red' time between light sets
+            time.sleep(1)
+ENDFUNCTION
+
+    ENDWHILE
