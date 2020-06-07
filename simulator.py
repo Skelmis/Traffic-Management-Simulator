@@ -126,7 +126,6 @@ def displayControllers():
         timer()
         # PrintMax()
         time.sleep(1)
-        # break # Only want one iterationn lol
 
 
 """ A function to display the car lanes to the console window."""
@@ -134,7 +133,7 @@ def displayControllers():
 
 def displayCars():
     print("NORTH:", end="")
-    print(northLane)  # pprint prints lists n shit nicely
+    print(northLane)  # This used to be pprint because it prints lists nicely
     print("EAST:", end="")
     print(eastLane)
     print("SOUTH:", end="")
@@ -271,34 +270,20 @@ def ResetAllWaits():
     """
     Resets the wait times for all controllers
     """
-    northController.ResetRightWait()
-    northController.ResetOtherWait()
-
-    eastController.ResetRightWait()
-    eastController.ResetRightWait()
-
-    southController.ResetRightWait()
-    southController.ResetOtherWait()
-
-    westController.ResetRightWait()
-    westController.ResetOtherWait()
+    northController.ResetBothWaits()
+    eastController.ResetBothWaits()
+    southController.ResetBothWaits()
+    westController.ResetBothWaits()
 
 
 def IncrementAllWaits():
     """
     Increments all waits by 1
     """
-    northController.IncrementRightWait()
-    northController.IncrementOtherWait()
-
-    eastController.IncrementRightWait()
-    eastController.IncrementOtherWait()
-
-    southController.IncrementRightWait()
-    southController.IncrementOtherWait()
-
-    westController.IncrementRightWait()
-    westController.IncrementOtherWait()
+    northController.IncrementBothWaits()
+    eastController.IncrementBothWaits()
+    southController.IncrementBothWaits()
+    westController.IncrementBothWaits()
 
 
 def RunDualOtherControllers(controllerOne, controllerTwo):

@@ -61,6 +61,13 @@ class Controller:
         self.ResetRightWait()
         self.ResetOtherWait()
 
+    def IncrementBothWaits(self):
+        """
+        Increments both waits
+        """
+        self.IncrementRightWait()
+        self.IncrementOtherWait()
+
     def getName(self):
         return self.name
 
