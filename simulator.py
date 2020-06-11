@@ -8,7 +8,6 @@ import time
 from cars import Car
 import random
 import sys
-from pprint import pprint
 
 # Get the starting time to determine time elapsed
 start = time.perf_counter()
@@ -132,14 +131,10 @@ def displayControllers():
 
 
 def displayCars():
-    print("NORTH:", end="")
-    print(northLane)  # This used to be pprint because it prints lists nicely
-    print("EAST:", end="")
-    print(eastLane)
-    print("SOUTH:", end="")
-    print(southLane)
-    print("WEST:", end="")
-    print(westLane)
+    print("NORTH:", northLane)
+    print("EAST:", eastLane)
+    print("SOUTH:", southLane)
+    print("WEST:", westLane)
 
 
 """ A function to remove cars from a lane based on their intended direction. """
@@ -202,11 +197,11 @@ def resetCars():
             and len(eastLane) == 0
             and len(westLane) == 0
         ):
-            # generateCars(random.randint(10, 100))
+            generateCars(random.randint(10, 100))
 
             # Use 50 as our set testcase for comparsions
             # to our baseline
-            generateCars(50)
+            # generateCars(50)
 
 
 """ A function which counts the number of cars going a certain direction in the given lane. """
@@ -348,8 +343,6 @@ def PrintMax():
 
 
 def lightSignals():
-    # thread = threading.Thread(target=PrintMax)
-    # thread.start()
     while True:
         try:
             # We need to know how many cars need what light per side
@@ -359,11 +352,6 @@ def lightSignals():
             southRight, southOther = CountAllCars(southLane)
             westRight, westOther = CountAllCars(westLane)
 
-            # TODO
-            # Implement a way to get the largest out of the 8 above then run the rule
-            # set to figure out what one to use
-            # WE need to know the lane so we use a dict
-            # Dunno how it handles double ups
             data = {
                 northRight: "nr",
                 northOther: "no",

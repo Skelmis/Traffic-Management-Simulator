@@ -80,6 +80,16 @@ class Controller:
         self.trafficLight.redOn()
         self.trafficLight.tredOn()
 
+    def phaseOrange(self):
+        self.trafficLight.switchOff()
+        self.trafficLight.orangeOn()
+        self.trafficLight.torangeOn()
+
+    def phaseGreen(self):
+        self.trafficLight.switchOff()
+        self.trafficLight.greenOn()
+        self.trafficLight.tgreenOn()
+
     # Define further phases for your traffic light here
 
     def AllCycle(self):
@@ -87,15 +97,11 @@ class Controller:
         Cycles through all of the lights turning them on and off
         """
         # All green lights on
-        self.trafficLight.switchOff()
-        self.trafficLight.greenOn()
-        self.trafficLight.tgreenOn()
+        self.phaseGreen()
         # Pause the light before the change for the length of the interval
         time.sleep(self.INTERVAL)
         # All orange lights on
-        self.trafficLight.switchOff()
-        self.trafficLight.orangeOn()
-        self.trafficLight.torangeOn()
+        self.phaseOrange()
         time.sleep(self.INTERVAL)
         # All red lights on
         self.phaseStop()
