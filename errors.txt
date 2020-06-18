@@ -1,0 +1,20 @@
+FAIL: test_displayCars (__main__.TestSimulation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\shado\Desktop\Engen 103\Traffic Management\test.py", line 109, in test_displayCars
+    + "\n",
+AssertionError: 'NORTH: []\nEAST: []\nSOUTH: []\nWEST: []\n' != 'NORTH:[]\nEAST:[]\nSOUTH:[]\nWEST:[]\n'
+- NORTH: []
+?       -
++ NORTH:[]
+- EAST: []
+?      -
++ EAST:[]
+- SOUTH: []
+?       -
++ SOUTH:[]
+- WEST: []
+?      -
++ WEST:[]
+
+Error occurs because we changed how we are printing it

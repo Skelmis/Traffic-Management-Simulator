@@ -18,16 +18,18 @@ class TestSimulation(unittest.TestCase):
     """
 
     ### Controller class tests ###
-    # Test the attributes are set correctly
     def test_controllerAttr(self):
+        """
+        Test the attributes are set correctly
+        """
         controller = TrafficLightController("WEST")
         self.assertEqual(controller.getName(), "WEST")
         self.assertTrue(controller.getTL() != None)
 
     # Add further tests for your controller class here
-    def test_rightWait(self):
+    def test_wait(self):
         """
-        Tests our wait functions
+        Tests our wait increment functions
         """
         controller = TrafficLightController("WEST")
         self.assertEqual(controller.GetRightWait(), 0)
@@ -37,24 +39,50 @@ class TestSimulation(unittest.TestCase):
         controller.ResetRightWait()
         self.assertEqual(controller.GetRightWait(), 0)
 
-    def test_otherWait(self):
+    def test_waitReset(self):
         """
-        Tests our wait functions
+        Tests our wait reset functions
         """
         controller = TrafficLightController("WEST")
-        self.assertEqual(controller.GetOtherWait(), 0)
+        self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
+        controller.IncrementRightWait()
+        controller.ResetRightWait()
+        self.assertNotEqual(controller.GetRightWait(), 1, msg="Right wait")
+        controller.ResetRightWait()
+        controller.ResetRightWait()
+        self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
+
+        self.assertEqual(controller.GetOtherWait(), 0, msg="Other wait")
         controller.IncrementOtherWait()
-        controller.IncrementOtherWait()
-        self.assertEqual(controller.GetOtherWait(), 2)
         controller.ResetOtherWait()
-        self.assertEqual(controller.GetOtherWait(), 0)
+        self.assertNotEqual(controller.GetOtherWait(), 1, msg="Other wait")
+        controller.ResetOtherWait()
+        controller.ResetOtherWait()
+        self.assertEqual(controller.GetOtherWait(), 0, msg="Other wait")
+
+    def test_dualWaitReset(self):
+        """
+        Test wait functions which do both at once
+        """
+        controller = TrafficLightController("WEST")
+        controller.IncrementBothWaits()
+        self.assertEqual(controller.GetRightWait(), 1, msg="Right wait")
+        self.assertEqual(controller.GetOtherWait(), 1, msg="Other wait")
+
+    def test_otherInitWait(self):
+        """
+        Makes sure waits are set right on init
+        """
+        controller = TrafficLightController("WEST")
+        self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
+        self.assertEqual(controller.GetOtherWait(), 0, msg="Other wait")
 
     ### Simulator class tests ###
 
-    # Add further tests for your simulation functions that you have modified here
-
-    # Test the car generator
     def test_generateCars(self):
+        """
+        Test car generation
+        """
         simulator.generateCars(10)
         self.assertTrue(
             len(simulator.northLane) > 0
@@ -72,26 +100,31 @@ class TestSimulation(unittest.TestCase):
             10,
         )
 
-    # Test the display functions
     def test_displayCars(self):
+        """
+        Test the display functions
+        """
         capturedOutput = io.StringIO()
         sys.stdout = capturedOutput
         simulator.displayCars()
         sys.stdout = sys.__stdout__
         self.assertEqual(
             capturedOutput.getvalue(),
-            "NORTH:"
+            "NORTH: "
             + str(simulator.northLane)
-            + "\nEAST:"
+            + "\nEAST: "
             + str(simulator.eastLane)
-            + "\nSOUTH:"
+            + "\nSOUTH: "
             + str(simulator.southLane)
-            + "\nWEST:"
+            + "\nWEST: "
             + str(simulator.westLane)
             + "\n",
         )
 
     def test_timer(self):
+        """
+        Test the timer is correct
+        """
         capturedOutput = io.StringIO()
         sys.stdout = capturedOutput
         simulator.start = 0
@@ -105,6 +138,9 @@ class TestSimulation(unittest.TestCase):
         )
 
     def test_controllerDisplay(self):
+        """
+        Test the controller output is correct
+        """
         string = (
             "NORTH                    EAST                     SOUTH                    WEST                     \n - -                      - -                      - -                      - -                     \n"
             + colored(
@@ -125,8 +161,10 @@ class TestSimulation(unittest.TestCase):
         )
         self.assertEqual(simulator.controllerDisplay(), string)
 
-    # Test for removing cars
     def test_removeCars(self):
+        """
+        Test for removing cars
+        """
         car1 = Car("Car1", "EAST", "STRAIGHT")
         car2 = Car("Car2", "EAST", "RIGHT")
         car3 = Car("Car3", "EAST", "LEFT")
@@ -134,8 +172,10 @@ class TestSimulation(unittest.TestCase):
         simulator.removeCars(lane, "LEFT")
         self.assertEqual(lane, [car1, car2, car3])
 
-    # Tests for the sensor
     def test_sensorAllGo(self):
+        """
+        Tests for the sensor
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -149,6 +189,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(lane, [car2, car3, car3])
 
     def test_sensorAllOrange(self):
+        """
+        Test all sensors are orange
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -162,6 +205,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(lane, [car2, car3, car3])
 
     def test_sensorRightGo(self):
+        """
+        Test right lights
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -175,6 +221,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(lane, [car1, car3, car3])
 
     def test_sensorRightOrange(self):
+        """
+        Test right light is orange
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -188,6 +237,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(lane, [car1, car3, car3])
 
     def test_sensorStraightGo(self):
+        """
+        Test straight lights
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -201,6 +253,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(lane, [car2, car3])
 
     def test_sensorStraightOrange(self):
+        """
+        Test straight orange lights
+        """
         controller = TrafficLightController("MOCK")
         tl = controller.getTL()
         tl.switchOff()
@@ -215,6 +270,9 @@ class TestSimulation(unittest.TestCase):
 
     # A test for the count cars function
     def test_countCars(self):
+        """
+        Test car counting function
+        """
         car1 = Car("Car1", "EAST", "STRAIGHT")
         car2 = Car("Car2", "EAST", "RIGHT")
         car3 = Car("Car3", "EAST", "LEFT")
@@ -223,122 +281,190 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(answer, 2)
 
     ### Car class tests ###
-    # Test the attributes are set correctly
+
     def test_carAttr(self):
+        """
+        Test the attributes are set correctly
+        """
         car = Car("Car1", "WEST", "LEFT")
         self.assertEqual(car.getName(), "Car1")
         self.assertEqual(car.getEnter(), "WEST")
         self.assertEqual(car.getDirection(), "LEFT")
 
-    # Test display direction
     def test_carDisplayDirLeft(self):
+        """
+        Test display direction is left
+        """
         car = Car("Car1", "WEST", "LEFT")
         self.assertEqual(car.displayDirection(), "<")
 
     def test_carDisplayDirRight(self):
+        """
+        Test display direction is right
+        """
         car = Car("Car1", "WEST", "RIGHT")
         self.assertEqual(car.displayDirection(), ">")
 
     def test_carDisplayDirStraight(self):
+        """
+        Test display direction is straight
+        """
         car = Car("Car1", "WEST", "STRAIGHT")
         self.assertEqual(car.displayDirection(), "^")
 
-    # Test str function
     def test_carStr(self):
+        """
+        Test str function
+        """
         car = Car("Car1", "WEST", "STRAIGHT")
         self.assertEqual(str(car), "Car1: STRAIGHT")
 
     ### Traffic Light Tests ###
-    # Test the attributes are set correctly
+
     def test_TLAttr(self):
+        """
+        Test the attributes are set correctly
+        """
         trafficLight = TrafficLight()
         self.assertEqual(
             trafficLight.whatsOn(), [True, True, False, False, False, False]
         )
 
-    # Test the on and off light functions
     def test_redOn(self):
+        """
+        Test red on
+        """
         trafficLight = TrafficLight()
         trafficLight.redOn()
         self.assertTrue(trafficLight.whatsOn()[0])
 
     def test_redOff(self):
+        """
+        Test red off
+        """
         trafficLight = TrafficLight()
         trafficLight.redOff()
         self.assertFalse(trafficLight.whatsOn()[0])
 
     def test_tredOn(self):
+        """
+        test right red on
+        """
         trafficLight = TrafficLight()
         trafficLight.tredOn()
         self.assertTrue(trafficLight.whatsOn()[1])
 
     def test_tredOff(self):
+        """
+        test right red off
+        """
         trafficLight = TrafficLight()
         trafficLight.tredOff()
         self.assertFalse(trafficLight.whatsOn()[1])
 
     def test_orangeOn(self):
+        """
+        test orange on
+        """
         trafficLight = TrafficLight()
         trafficLight.orangeOn()
         self.assertTrue(trafficLight.whatsOn()[2])
 
     def test_orangeOff(self):
+        """
+        test orange off
+        """
         trafficLight = TrafficLight()
         trafficLight.orangeOff()
         self.assertFalse(trafficLight.whatsOn()[2])
 
     def test_torangeOn(self):
+        """
+        test right orange on
+        """
         trafficLight = TrafficLight()
         trafficLight.torangeOn()
         self.assertTrue(trafficLight.whatsOn()[3])
 
     def test_torangeOff(self):
+        """
+        test right orange off
+        """
         trafficLight = TrafficLight()
         trafficLight.torangeOff()
         self.assertFalse(trafficLight.whatsOn()[3])
 
     def test_greenOn(self):
+        """
+        test green on
+        """
         trafficLight = TrafficLight()
         trafficLight.greenOn()
         self.assertTrue(trafficLight.whatsOn()[4])
 
     def test_greenOff(self):
+        """
+        test green off
+        """
         trafficLight = TrafficLight()
         trafficLight.greenOff()
         self.assertFalse(trafficLight.whatsOn()[4])
 
     def test_tgreenOn(self):
+        """
+        test right green on
+        """
         trafficLight = TrafficLight()
         trafficLight.tgreenOn()
         self.assertTrue(trafficLight.whatsOn()[5])
 
     def test_tgreenOff(self):
+        """
+        test right green off
+        """
         trafficLight = TrafficLight()
         trafficLight.tgreenOff()
         self.assertFalse(trafficLight.whatsOn()[5])
 
-    # Test the light display functions
     def test_displayLightOnS(self):
+        """
+        Test light display function straight light on
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.displayLight(True, "S"), "O")
 
     def test_displayLightOnT(self):
+        """
+        Test light display function t lights on
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.displayLight(True, "T"), ">")
 
     def test_displayLightOff(self):
+        """
+        Test light display function t lights off
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.displayLight(False, "T"), " ")
 
     def test_redStr(self):
+        """
+        Test light display function red str
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.redStr(), "|O|>|")
 
     def test_orangeStr(self):
+        """
+        Test light display function orange str
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.orangeStr(), "| | |")
 
     def test_greenStr(self):
+        """
+        Test light display function green str
+        """
         trafficLight = TrafficLight()
         self.assertEqual(trafficLight.greenStr(), "| | |")
 
