@@ -1,17 +1,20 @@
 from termcolor import colored
+
 """ A class which stores the information for a traffic light. """
+
+
 class Traffic:
 
-    #Each light is set to True or False depending on whether it is on or off
+    # Each light is set to True or False depending on whether it is on or off
     def __init__(self):
         self.red = True
         self.orange = False
         self.green = False
-        self.tred = True # T red is turning right light?
+        self.tred = True  # T red is turning right light?
         self.torange = False
         self.tgreen = False
 
-    #Function which allow you to switch lights on and off
+    # Function which allow you to switch lights on and off
     def redOn(self):
         self.red = True
 
@@ -48,7 +51,7 @@ class Traffic:
     def tgreenOff(self):
         self.tgreen = False
 
-    #This function allows us to reset all the lights
+    # This function allows us to reset all the lights
     def switchOff(self):
         self.redOff()
         self.orangeOff()
@@ -57,24 +60,42 @@ class Traffic:
         self.torangeOff()
         self.tgreenOff()
 
-    #Return the value as a matrix to determine which lights are on or off
+    # Return the value as a matrix to determine which lights are on or off
     def whatsOn(self):
-        return [self.red,self.tred,self.orange,self.torange,self.green,self.tgreen]
+        return [self.red, self.tred, self.orange, self.torange, self.green, self.tgreen]
 
-    #The following functions are for displaying the light in the simulation
+    # The following functions are for displaying the light in the simulation
     def displayLight(self, light, type):
-        if light and type=="S":
+        if light and type == "S":
             return "O"
-        elif light and type=="T":
+        elif light and type == "T":
             return ">"
         else:
             return " "
 
     def redStr(self):
-        return "|" + self.displayLight(self.red,"S") + "|" + self.displayLight(self.tred,"T") + "|"
+        return (
+            "|"
+            + self.displayLight(self.red, "S")
+            + "|"
+            + self.displayLight(self.tred, "T")
+            + "|"
+        )
 
     def orangeStr(self):
-        return "|" + self.displayLight(self.orange,"S") + "|" + self.displayLight(self.torange,"T") + "|"
+        return (
+            "|"
+            + self.displayLight(self.orange, "S")
+            + "|"
+            + self.displayLight(self.torange, "T")
+            + "|"
+        )
 
     def greenStr(self):
-        return "|" + self.displayLight(self.green,"S") + "|" + self.displayLight(self.tgreen,"T") + "|"
+        return (
+            "|"
+            + self.displayLight(self.green, "S")
+            + "|"
+            + self.displayLight(self.tgreen, "T")
+            + "|"
+        )

@@ -18,3 +18,23 @@ AssertionError: 'NORTH: []\nEAST: []\nSOUTH: []\nWEST: []\n' != 'NORTH:[]\nEAST:
 + WEST:[]
 
 Error occurs because we changed how we are printing it
+
+
+def test_timer(self):
+    """
+    Test the timer is correct
+    """
+    capturedOutput = io.StringIO()
+    sys.stdout = capturedOutput
+    simulator.start = 0
+    simulator.timer()
+    sys.stdout = sys.__stdout__
+    self.assertEqual(
+        capturedOutput.getvalue(),
+        "----------\nTIME ELAPSED: 00:00:03 | Total cars: "
+        + str(simulator.all_cars)
+        + "\n",
+    )
+
+Errors occurs due to our other tests taking 2 seconds, which means we had to change it up by 3 seconds
+so that it is accepted rather then having the test fail

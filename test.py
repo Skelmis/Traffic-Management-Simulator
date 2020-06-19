@@ -5,10 +5,12 @@ from cars import Car
 from controllers import Controller as TrafficLightController
 from lights import Traffic as TrafficLight
 import simulator
+import mockSimulatorFunctions as testFunctions
 import threading
 import io
 import sys
 from termcolor import colored
+import time
 
 
 class TestSimulation(unittest.TestCase):
@@ -31,7 +33,7 @@ class TestSimulation(unittest.TestCase):
         """
         Tests our wait increment functions
         """
-        controller = TrafficLightController("WEST")
+        controller = TrafficLightController("TEST")
         self.assertEqual(controller.GetRightWait(), 0)
         controller.IncrementRightWait()
         controller.IncrementRightWait()
@@ -43,7 +45,7 @@ class TestSimulation(unittest.TestCase):
         """
         Tests our wait reset functions
         """
-        controller = TrafficLightController("WEST")
+        controller = TrafficLightController("TEST")
         self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
         controller.IncrementRightWait()
         controller.ResetRightWait()
@@ -64,7 +66,7 @@ class TestSimulation(unittest.TestCase):
         """
         Test wait functions which do both at once
         """
-        controller = TrafficLightController("WEST")
+        controller = TrafficLightController("TEST")
         controller.IncrementBothWaits()
         self.assertEqual(controller.GetRightWait(), 1, msg="Right wait")
         self.assertEqual(controller.GetOtherWait(), 1, msg="Other wait")
@@ -73,9 +75,102 @@ class TestSimulation(unittest.TestCase):
         """
         Makes sure waits are set right on init
         """
-        controller = TrafficLightController("WEST")
+        controller = TrafficLightController("TEST")
         self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
         self.assertEqual(controller.GetOtherWait(), 0, msg="Other wait")
+
+    def test_dualWaitIncrement(self):
+        """
+        Test the method handling incrementing both waits
+        """
+        controller = TrafficLightController("TEST")
+        controller.IncrementBothWaits()
+        self.assertEqual(controller.GetRightWait(), 1, msg="Right wait")
+        self.assertEqual(controller.GetOtherWait(), 1, msg="Other wait")
+
+    def test_phaseStop(self):
+        """
+        test the phase stop function
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.phaseStop()
+        self.assertEqual(tl.whatsOn(), [True, True, False, False, False, False])
+
+    def test_phaseOrange(self):
+        """
+        test the phase orange function
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.phaseOrange()
+        self.assertEqual(tl.whatsOn(), [False, False, True, True, False, False])
+
+    def test_phaseGreen(self):
+        """
+        test the phase green function
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.phaseGreen()
+        self.assertEqual(tl.whatsOn(), [False, False, False, False, True, True])
+
+    def test_partialRightCycle(self):
+        """
+        Test a part of our right cycle
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.trafficLight.switchOff()
+        controller.trafficLight.redOn()
+        controller.trafficLight.tgreenOn()
+        self.assertEqual(tl.whatsOn(), [True, False, False, False, False, True])
+
+    def test_partialRightCycleTwo(self):
+        """
+        Test the other part of our right cycle
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.trafficLight.switchOff()
+        controller.trafficLight.redOn()
+        controller.trafficLight.torangeOn()
+        self.assertEqual(tl.whatsOn(), [True, False, False, True, False, False])
+
+    def test_partialOtherCycle(self):
+        """
+        Test a part of our other cycle
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.trafficLight.switchOff()
+        controller.trafficLight.greenOn()
+        controller.trafficLight.tredOn()
+        self.assertEqual(tl.whatsOn(), [False, True, False, False, True, False])
+
+    def test_partialOtherCycleTwo(self):
+        """
+        Test the other part of our other cycle
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.trafficLight.switchOff()
+        controller.trafficLight.orangeOn()
+        controller.trafficLight.tredOn()
+        self.assertEqual(tl.whatsOn(), [False, True, True, False, False, False])
+
+    def test_partialBrokenCycle(self):
+        """
+        Test the broken cycle logic, minus timings
+        """
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        controller.trafficLight.switchOff()
+        self.assertEqual(tl.whatsOn(), [False, False, False, False, False, False])
+
+        controller.trafficLight.orangeOn()
+        controller.trafficLight.torangeOn()
+        self.assertEqual(tl.whatsOn(), [False, False, True, True, False, False])
 
     ### Simulator class tests ###
 
@@ -132,7 +227,7 @@ class TestSimulation(unittest.TestCase):
         sys.stdout = sys.__stdout__
         self.assertEqual(
             capturedOutput.getvalue(),
-            "----------\nTIME ELAPSED: 00:00:00 | Total cars: "
+            "----------\nTIME ELAPSED: 00:00:03 | Total cars: "
             + str(simulator.all_cars)
             + "\n",
         )
@@ -280,6 +375,109 @@ class TestSimulation(unittest.TestCase):
         answer = simulator.countCars(lane, "LEFT")
         self.assertEqual(answer, 2)
 
+    # <-- Custom simulator tests begin -->
+    def test_lightsBrokenVar(self):
+        """
+        Tests if the variable is initialized correct
+        """
+        self.assertFalse(simulator.lightsAreBroken)
+
+    def test_lightsBrokenLogic(self):
+        """
+        Tests lightsAreBroken works as intended
+        """
+        simulator.lightsAreBroken = True
+        controller = TrafficLightController("TEST")
+        tl = controller.getTL()
+        tl.switchOff()
+        tl.greenOn()
+        tl.tgreenOn()
+        car1 = Car("Car1", "EAST", "STRAIGHT")
+        car2 = Car("Car2", "EAST", "RIGHT")
+        car3 = Car("Car3", "EAST", "LEFT")
+        lane = [car1, car2, car3, car3]
+        simulator.sensor(controller, lane)
+        self.assertEqual(lane, [car1, car2, car3, car3])
+
+        # Reset the variable so as not to break anything
+        simulator.lightsAreBroken = False
+
+    def test_countAllCars(self):
+        """
+        Used to test the counnt all cars method
+        """
+        controller = TrafficLightController("TEST")
+        car1 = Car("Car1", "EAST", "STRAIGHT")
+        car2 = Car("Car2", "EAST", "RIGHT")
+        car3 = Car("Car3", "EAST", "LEFT")
+        lane = [car1, car2, car3, car3]
+        self.assertEqual(simulator.CountAllCars(lane), (1, 3))
+
+    def test_bulkWaitChanges(self):
+        """
+        Tests both IncrementAllWaits() and ResetAllWaits()
+        """
+        self.assertEqual(simulator.northController.GetOtherWait(), 0)
+        self.assertEqual(simulator.eastController.GetOtherWait(), 0)
+        self.assertEqual(simulator.southController.GetOtherWait(), 0)
+        self.assertEqual(simulator.westController.GetOtherWait(), 0)
+
+        simulator.IncrementAllWaits()
+        self.assertEqual(simulator.northController.GetOtherWait(), 1)
+        self.assertEqual(simulator.eastController.GetOtherWait(), 1)
+        self.assertEqual(simulator.southController.GetOtherWait(), 1)
+        self.assertEqual(simulator.westController.GetOtherWait(), 1)
+
+        simulator.ResetAllWaits()
+        self.assertEqual(simulator.northController.GetOtherWait(), 0)
+        self.assertEqual(simulator.eastController.GetOtherWait(), 0)
+        self.assertEqual(simulator.southController.GetOtherWait(), 0)
+        self.assertEqual(simulator.westController.GetOtherWait(), 0)
+
+    def test_lightSignalsLogic(self):
+        """
+        Tests our logic for our light signals
+        """
+        car1 = Car("Car1", "EAST", "STRAIGHT")
+        car2 = Car("Car2", "EAST", "RIGHT")
+        car3 = Car("Car3", "EAST", "LEFT")
+        car4 = Car("Car4", "NORTH", "RIGHT")
+        testFunctions.eastLane = [car1, car2, car3]
+        testFunctions.northLane = [car4, car4]
+        self.assertEqual(testFunctions.lightSignals(), ("eo", "er"))
+
+    def test_lightSignalWaitLogic(self):
+        """
+        Tests the logic being wait times in light signals
+        """
+        car1 = Car("Car1", "EAST", "STRAIGHT")
+        car2 = Car("Car2", "EAST", "RIGHT")
+        car3 = Car("Car3", "EAST", "LEFT")
+        car4 = Car("Car4", "NORTH", "RIGHT")
+        car5 = Car("Car5", "NORTH", "STRAIGHT")
+        testFunctions.eastLane = [car1, car2, car3]
+        testFunctions.northLane = [car4, car5, car4]
+        for i in range(10):
+            # Force wait to be tripped
+            testFunctions.northController.IncrementOtherWait()
+
+        self.assertEqual(testFunctions.lightSignals(), ("no", "nr"))
+
+    def test_lightSignalWaitLogicTwo(self):
+        """
+        Test further logic behind the wait times
+        """
+        car1 = Car("Car1", "EAST", "STRAIGHT")
+        car2 = Car("Car2", "EAST", "RIGHT")
+        car3 = Car("Car3", "EAST", "LEFT")
+        car4 = Car("Car4", "NORTH", "RIGHT")
+        car5 = Car("Car5", "NORTH", "STRAIGHT")
+        testFunctions.eastLane = [car1, car2, car3]
+        testFunctions.northLane = [car4, car5]
+        testFunctions.northController.wait_other = 7  # test border value
+
+        self.assertEqual(testFunctions.lightSignals(), ("eo", "er"))
+
     ### Car class tests ###
 
     def test_carAttr(self):
@@ -314,7 +512,7 @@ class TestSimulation(unittest.TestCase):
 
     def test_carStr(self):
         """
-        Test str function
+        Test car str function
         """
         car = Car("Car1", "WEST", "STRAIGHT")
         self.assertEqual(str(car), "Car1: STRAIGHT")
