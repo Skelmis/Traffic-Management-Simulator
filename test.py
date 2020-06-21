@@ -71,6 +71,10 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(controller.GetRightWait(), 1, msg="Right wait")
         self.assertEqual(controller.GetOtherWait(), 1, msg="Other wait")
 
+        controller.ResetBothWaits()
+        self.assertEqual(controller.GetRightWait(), 0, msg="Right wait")
+        self.assertEqual(controller.GetOtherWait(), 0, msg="Other wait")
+
     def test_otherInitWait(self):
         """
         Makes sure waits are set right on init
@@ -227,7 +231,7 @@ class TestSimulation(unittest.TestCase):
         sys.stdout = sys.__stdout__
         self.assertEqual(
             capturedOutput.getvalue(),
-            "----------\nTIME ELAPSED: 00:00:03 | Total cars: "
+            "----------\nTIME ELAPSED: 00:00:00 | Total cars: "
             + str(simulator.all_cars)
             + "\n",
         )
@@ -263,9 +267,9 @@ class TestSimulation(unittest.TestCase):
         car1 = Car("Car1", "EAST", "STRAIGHT")
         car2 = Car("Car2", "EAST", "RIGHT")
         car3 = Car("Car3", "EAST", "LEFT")
-        lane = [car1, car2, car3, car3]
-        simulator.removeCars(lane, "LEFT")
-        self.assertEqual(lane, [car1, car2, car3])
+        eastLane = [car1, car2, car3, car3]
+        simulator.removeCars(eastLane, "LEFT")
+        self.assertEqual(eastLane, [car1, car2, car3])
 
     def test_sensorAllGo(self):
         """

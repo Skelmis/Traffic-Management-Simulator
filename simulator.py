@@ -319,29 +319,6 @@ def RunDualRightControllers(controllerOne, controllerTwo):
     controllerTwo.ResetRightWait()
 
 
-def PrintMax():
-    """
-    A function built for testing our logic and that
-    our program was correctly choosing the largest lane
-    """
-    northRight, northOther = CountAllCars(northLane)
-    eastRight, eastOther = CountAllCars(eastLane)
-    southRight, southOther = CountAllCars(southLane)
-    westRight, westOther = CountAllCars(westLane)
-    data = {
-        northRight: "nr",
-        northOther: "no",
-        eastRight: "er",
-        eastOther: "eo",
-        southRight: "sr",
-        southOther: "so",
-        westRight: "wr",
-        westOther: "wo",
-    }
-    longestLight = max(data)
-    print(data[longestLight])
-
-
 def lightSignals():
     while True:
         try:

@@ -248,7 +248,8 @@ def lightSignals():
         lightsAreBroken works cool thankies :)
         """
         return "Broken Cycle"
-    finally:
-        # In accordance with the road rules we sleep here
-        # so there is an 'all red' time between light sets
-        time.sleep(1)
+    # finally:
+    # In accordance with the road rules we sleep here
+    # so there is an 'all red' time between light sets
+    # time.sleep(1)
+    # No need to sleep as this is used for logic tests
