@@ -21,13 +21,10 @@ This means Concept 3 is 135% more efficient then Concept 1
 Our final design implementation is 135% more efficient then all comparisions & the efficiency increases over time as it slowly gets further and further ahead of prior implementations.
 
 After running for about 15 minutes:
-[![GRAPHIC](https://imgur.com/a/OXCzUmq)]()
-
-After 70 hours:
-https://gyazo.com/9f60436c8d2193732e314776aa2db713
+[![GRAPHIC](https://i.imgur.com/za2FIxM.png)]()
 
 After running for around 101 hours:
-[![GRAPHIC](https://imgur.com/a/WiDHC6L)]()
+[![GRAPHIC](https://i.imgur.com/U7kqvSf.png)]()
 
 After 141 hours:
-[![GRAPHIC](https://imgur.com/a/iknKnHI)]()
+[![GRAPHIC](https://i.imgur.com/WDYJNkx.png)]()
