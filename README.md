@@ -12,7 +12,7 @@ Some cool stats about our implementation:
 > Concept 1 being lights just rotate through clockwise changing lights
 > Concept 3 being based on both lane length & wait times
 
-Using a set traffic amount of 25 new cars everytime the intersection was clear I found the following.
+Using a set traffic amount of 25 new cars everytime the intersection was clear we found the following.
 Concept 1 had a total cars count of: `210 after 5 minutes`
 Concept 3 had a total cars count of: `285 after 5 minutes`
 This means Concept 3 had 75 more cars then Concept 1 are running for the same timeframe
