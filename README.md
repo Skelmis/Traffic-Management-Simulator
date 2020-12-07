@@ -4,12 +4,14 @@ A project devoted to fun times and creating a program to handle the efficient & 
 
 ---
 
-We were given a baseline set of code, see [here](https://github.com/Skelmis/Traffic-Management-Simulator/tree/master/Baseline%20Traffic%20code). Then, based off of that we were asked to create the best simulator we could, that was both as efficient as possible and also conformed to the nzta road rules.
+We were given a baseline set of code, see [here](https://github.com/Skelmis/Traffic-Management-Simulator/tree/master/Baseline%20Traffic%20code). Then, based off of that we were asked to create the best simulator we could, that was both as efficient as possible and also conformed to the [nzta road rules](https://www.nzta.govt.nz/roadcode).
 
 Some cool stats about our implementation:
 
 > Required Knowledge
+
 > Concept 1 being lights just rotate through clockwise changing lights
+
 > Concept 3 being based on both lane length & wait times
 
 Using a set traffic amount of 25 new cars everytime the intersection was clear we found the following.
